@@ -8,6 +8,8 @@ using System.Net;
 using System.Web;
 using System.Web.Mvc;
 using TestApi.Models;
+using PagedList.Mvc;
+using PagedList;
 using TestApi.DAL;
 
 namespace TestApi.Controllers
@@ -15,13 +17,14 @@ namespace TestApi.Controllers
     public class CategoriesController : Controller
     {
         private UnitOfWork unitOfWork = new UnitOfWork();
-        private MyContext db = new MyContext();
 
 
         // GET: Categories
-        public ActionResult Index(string term)
+        public ActionResult Index(int? page)
         {
-            return View(unitOfWork.CategoryRepository.Get());
+            int pageSize = 3;
+            int pageNumber = (page ?? 1);
+            return View(unitOfWork.CategoryRepository.Get().ToPagedList(pageNumber, pageSize));
         }
 
         // GET: Categories/Details/5
@@ -52,23 +55,26 @@ namespace TestApi.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Create([Bind(Include = "Id,Name,Discription")] Category category)
         {
-            if (ModelState.IsValid)
+            using (MyContext db = new MyContext())
             {
-                using (var transaction = db.Database.BeginTransaction())
+                if (ModelState.IsValid)
                 {
-                    try
+                    using (var transaction = db.Database.BeginTransaction())
                     {
-                        category.Id = Guid.NewGuid();
-                        await unitOfWork.CategoryRepository.InsertAsync(category);
-                        await unitOfWork.SaveChangesAsync();
-                        return RedirectToAction("Index");
-                    }
-                    catch (Exception ex)
-                    {
-                        transaction.Rollback();
+                        try
+                        {
+                            category.Id = Guid.NewGuid();
+                            await unitOfWork.CategoryRepository.InsertAsync(category);
+                            await unitOfWork.SaveChangesAsync();
+                            return RedirectToAction("Index");
+                        }
+                        catch (Exception ex)
+                        {
+                            transaction.Rollback();
+                        }
                     }
                 }
-            }
+            }     
             return View(category);
         }
 
@@ -94,22 +100,26 @@ namespace TestApi.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Edit([Bind(Include = "Id,Name,Discription")] Category category)
         {
-            if (ModelState.IsValid)
+            using (MyContext db = new MyContext())
             {
-                using (var transaction = db.Database.BeginTransaction())
+                if (ModelState.IsValid)
                 {
-                    try
+                    using (var transaction = db.Database.BeginTransaction())
                     {
-                        await unitOfWork.CategoryRepository.UpdateAsync(category);
-                        await unitOfWork.SaveChangesAsync();
-                        return RedirectToAction("Index");
-                    }
-                    catch (Exception ex)
-                    {
-                        transaction.Rollback();
+                        try
+                        {
+                            await unitOfWork.CategoryRepository.UpdateAsync(category);
+                            await unitOfWork.SaveChangesAsync();
+                            return RedirectToAction("Index");
+                        }
+                        catch (Exception ex)
+                        {
+                            transaction.Rollback();
+                        }
                     }
                 }
             }
+           
             return View(category);
         }
 
@@ -133,19 +143,23 @@ namespace TestApi.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> DeleteConfirmed(Guid id)
         {
-             using (var transaction = db.Database.BeginTransaction())
+            using (MyContext db = new MyContext())
+            {
+                using (var transaction = db.Database.BeginTransaction())
                 {
-                try
-                {
-                    Category category = await unitOfWork.CategoryRepository.GetByIDAsync(id);
-                    await unitOfWork.CategoryRepository.DeleteAsync(category);
-                    await unitOfWork.SaveChangesAsync();                  
-                }
-                catch (Exception ex)
-                {
-                    transaction.Rollback();
+                    try
+                    {
+                        Category category = await unitOfWork.CategoryRepository.GetByIDAsync(id);
+                        await unitOfWork.CategoryRepository.DeleteAsync(category);
+                        await unitOfWork.SaveChangesAsync();
+                    }
+                    catch (Exception ex)
+                    {
+                        transaction.Rollback();
+                    }
                 }
             }
+           
             return RedirectToAction("Index");
         }
 

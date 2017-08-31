@@ -107,3 +107,7 @@ D:\LEKS\TestApi\TestApi\bin\x86\Microsoft.VC90.CRT\Microsoft.VC90.CRT.manifest
 D:\LEKS\TestApi\TestApi\bin\EntityFramework.SqlServerCompact.dll
 D:\LEKS\TestApi\TestApi\bin\System.Data.SqlServerCe.dll
 D:\LEKS\TestApi\TestApi\bin\EntityFramework.SqlServerCompact.xml
+D:\LEKS\TestApi\TestApi\bin\PagedList.dll
+D:\LEKS\TestApi\TestApi\bin\PagedList.Mvc.dll
+D:\LEKS\TestApi\TestApi\bin\PagedList.xml
+D:\LEKS\TestApi\TestApi\bin\PagedList.Mvc.xml

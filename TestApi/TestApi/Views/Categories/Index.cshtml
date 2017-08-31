@@ -1,9 +1,8 @@
-﻿@model IEnumerable<TestApi.Models.Category>
-
+﻿@model PagedList.IPagedList<TestApi.Models.Category>
+@using PagedList.Mvc;
 @{
     ViewBag.Title = "Index";
 }
-
 <h2>Index</h2>
 
 <p>
@@ -12,10 +11,10 @@
 <table class="table">
     <tr>
         <th>
-            @Html.DisplayNameFor(model => model.Name)
+            Наименование
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.Discription)
+           Описание
         </th>
         <th></th>
     </tr>
@@ -37,3 +36,7 @@
 }
 
 </table>
+<br />
+Страница @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) из @Model.PageCount
+
+@Html.PagedListPager(Model, page => Url.Action("Index", new { page }))
